@@ -8,7 +8,6 @@ class NewsService {
         if (data.image) {
             data.image = await handleImageUpload(data, req);
         }
-        
         return newsRepository.createNews(data);
     }
     //Get all the news

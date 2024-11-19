@@ -98,6 +98,21 @@ class PageController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async getPages(req, res){
+    try {
+        const { page = 1, limit = 10, search = "" } = req.query;
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+
+        const result = await pageService.getPaginatedPages(pageNumber, limitNumber, search);
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error in getPages controller:", error);
+        res.status(500).json({ error: "An error occurred while fetching pages" });
+    }
+};
 }
 
 module.exports = new PageController();

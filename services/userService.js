@@ -1,13 +1,26 @@
 const userRepository = require('../repositories/userRepository');
-
+const bcrypt = require('bcrypt');
 
 class UserService {
 
     //Create a user
     async createUser(userData) {
-        return await userRepository.createUser(userData);
-    };
-    
+        try {
+            if (!userData.password) {
+                throw new Error('Password is required');
+            }
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+            const userWithHashedPassword = {
+                ...userData,
+                password: hashedPassword,
+            };
+            return await userRepository.createUser(userWithHashedPassword);
+        } catch (error) {
+            console.error('Error saving user:', error.message);
+            throw error; 
+        }
+    }
     //Get all the users
     async getAllUsers(){
         return await userRepository.findAllUsers();
@@ -27,6 +40,21 @@ class UserService {
     async deleteUser(userId){
         return await userRepository.deleteUserById(userId);
     };
+
+    async updateUserStatus(userId, status) {
+        if (!userId) {
+          throw new Error("User ID is required");
+        }
+      
+        const updatedUser = await userRepository.updateUserById(userId, { active: status });
+      
+        if (!updatedUser) {
+          throw new Error("User not found");
+        }
+      
+        return updatedUser;
+      }
+      
     
   }
   

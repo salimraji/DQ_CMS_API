@@ -48,6 +48,25 @@ class PageRepository {
       { new: true }
     );
   }
+
+
+  async getPages(skip, limit, search){
+    const searchQuery = search
+        ? { "Details.Value": { $regex: search, $options: "i" } } // Case-insensitive search
+        : {};
+
+    return await Page.find(searchQuery)
+        .skip(skip)
+        .limit(limit);
+};
+
+async getPageCount (search) {
+    const searchQuery = search
+        ? { "Details.Value": { $regex: search, $options: "i" } } // Case-insensitive search
+        : {};
+
+    return await Page.countDocuments(searchQuery);
+};
 }
 
 module.exports = new PageRepository();

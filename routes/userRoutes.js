@@ -9,5 +9,7 @@ router.get('/:id', userController.getUserById);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 router.post('/auth/login', userController.loginUser)
+router.patch('/:userId/toggleStatus', userController.toggleUserStatus);
+
 
 module.exports = router;

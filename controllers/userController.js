@@ -64,18 +64,40 @@ class UserController {
                 return res.status(400).json({ message: 'Invalid credentials' });
             }
     
-            const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+            const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
                 return res.status(400).json({ message: 'Invalid credentials' });
             }
 
             const token = authService.generateToken(user);
-            return res.status(200).json({ token, userId: user._id });
+            return res.status(200).json({ token, userId: user._id, role: user.role, active: user.active });
         } catch (error) {
             return res.status(500).json({ message: 'An error occurred during login', error: error.message });
         }
     }
-     
+    async toggleUserStatus(req, res) {
+        try {
+          const { userId } = req.params;
+      
+          const user = await userService.getUserById(userId);
+          if (!user) {
+            throw new Error("User not found");
+          }
+      
+          const newStatus = !user.active; 
+          const updatedUser = await userService.updateUserStatus(userId, newStatus);
+      
+          res.status(200).json({ 
+            message: `User ${newStatus ? "activated" : "deactivated"} successfully`, 
+            user: updatedUser 
+          });
+        } catch (error) {
+          console.error("Error toggling user status:", error);
+          const status = error.message === "User not found" ? 404 : 500;
+          res.status(status).json({ message: error.message });
+        }
+      }
+      
 }
 
 module.exports = new UserController();

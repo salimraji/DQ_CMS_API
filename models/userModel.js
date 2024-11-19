@@ -21,10 +21,15 @@ const userSchema = new Schema({
         enum: ['support', 'admin', 'superadmin'],
         required: true
     },
-    passwordHash: {
+    password: {
         type: String,
         required: true
+    },
+    active:{
+        type: Boolean,
+        require: true
     }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

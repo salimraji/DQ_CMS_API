@@ -94,7 +94,23 @@ class PageService {
           throw new Error("Page or content not found");
       }
       return page;
+
   }
+
+  async getPaginatedPages(page, limit, search){
+    const skip = (page - 1) * limit;
+    const [pages, total] = await Promise.all([
+        pageRepository.getPages(skip, limit, search),
+        pageRepository.getPageCount(search),
+    ]);
+
+    return {
+        pages,
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+    };
+};
   
   
 }
