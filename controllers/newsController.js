@@ -3,7 +3,7 @@ const newsService = require('../services/newsService');
 class NewsController {
     async createNews(req, res) {
         try {
-            const news = await newsService.createNews(req.body);
+            const news = await newsService.createNews(req.body, req);
             res.status(201).json({ message: 'News created successfully', data: news });
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -34,7 +34,7 @@ class NewsController {
 
     async updateNews(req, res) {
         try {
-            const updatedNews = await newsService.updateNews(req.params.id, req.body);
+            const updatedNews = await newsService.updateNews(req.params.id, req.body, req);
             if (updatedNews) {
                 res.status(200).json({ message: 'News updated successfully', data: updatedNews });
             } else {
@@ -47,7 +47,7 @@ class NewsController {
 
     async deleteNews(req, res) {
         try {
-            const deletedNews = await newsService.deleteNews(req.params.id);
+            const deletedNews = await newsService.deleteNews(req.params.id, req);
             if (deletedNews) {
                 res.status(200).json({ message: 'News deleted successfully' });
             } else {

@@ -9,7 +9,7 @@ class AuthService {
         };
 
         return jwt.sign(payload, config.jwt.secretKey, {
-            expiresIn: '1h',
+            expiresIn: '5h',
             issuer: config.jwt.issuer,
             audience: config.jwt.audience,
         });

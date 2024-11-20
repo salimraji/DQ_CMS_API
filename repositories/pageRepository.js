@@ -9,6 +9,10 @@ class PageRepository {
     return Page.findById(id);
   }
 
+  async save(page) {
+    return await page.save();
+  }
+
   async updatePage(id, data) {
     return Page.findByIdAndUpdate(id, data, { new: true });
   }

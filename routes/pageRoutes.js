@@ -13,5 +13,6 @@ router.delete('/:pageId/content/:contentId', pageController.deleteContentItem);
 router.post('/:pageId/content', pageController.addContentToPage);
 router.put('/:pageId/content/:contentId', pageController.editContentInPage);
 router.get('/', pageController.getPages);
+router.post('/:pageId/add-detail', pageController.addDetail);
 
 module.exports = router;

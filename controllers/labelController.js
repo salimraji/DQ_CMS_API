@@ -4,7 +4,7 @@ class LabelController {
     async createLabel(req, res) {
         try {
             const labelData = req.body;
-            const newLabel = await LabelService.createLabel(labelData);
+            const newLabel = await LabelService.createLabel(labelData, req);
             res.status(201).json(newLabel);
         } catch (error) {
             res.status(500).json({ error: 'Error creating label', details: error.message });
@@ -39,7 +39,7 @@ class LabelController {
         try {
             const { id } = req.params;
             const labelData = req.body;
-            const updatedLabel = await LabelService.updateLabel(id, labelData);
+            const updatedLabel = await LabelService.updateLabel(id, labelData, req);
             if (updatedLabel) {
                 res.json(updatedLabel);
             } else {
@@ -53,7 +53,7 @@ class LabelController {
     async deleteLabel(req, res) {
         try {
             const { id } = req.params;
-            const deletedLabel = await LabelService.deleteLabel(id);
+            const deletedLabel = await LabelService.deleteLabel(id, req);
             if (deletedLabel) {
                 res.json({ message: 'Label deleted successfully' });
             } else {

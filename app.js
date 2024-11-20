@@ -17,11 +17,7 @@ app.use(cors({
 }));
 
 app.use('/api/users', userRoutes);
-
-
 app.use(authenticateToken);
-
-
 app.use('/api/news', newsRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/labels', labelRoutes);

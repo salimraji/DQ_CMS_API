@@ -1,8 +1,17 @@
 const LabelRepository = require('../repositories/labelRepository');
+const timestampService = require('./timestampService');
 
 class LabelService {
-    async createLabel(labelData) {
-        return await LabelRepository.createLabel(labelData);
+    async createLabel(labelData, req) {
+        const label = await LabelRepository.createLabel(labelData);
+        await timestampService.logOperation({
+            collectionName: 'labels',
+            operation: 'create',
+            documentId: label._id,
+            performedBy: req.user?.email, // Optional: user performing the action
+            details: { label: labelData },
+        });
+        return label;
     }
 
     async getLabels({ page = 1, limit = 10, search = '' }) {
@@ -18,15 +27,40 @@ class LabelService {
     }
 
     async getLabelById(labelId) {
-        return await LabelRepository.findLabelById(labelId);
+        const label = await LabelRepository.findLabelById(labelId);
+        if (!label) {
+            throw new Error('Label not found');
+        }
+        return label;
     }
 
-    async updateLabel(labelId, labelData) {
-        return await LabelRepository.updateLabel(labelId, labelData);
+    async updateLabel(labelId, labelData, req) {
+        const updatedLabel = await LabelRepository.updateLabel(labelId, labelData);
+        if (!updatedLabel) {
+            throw new Error('Label not found');
+        }
+        await timestampService.logOperation({
+            collectionName: 'labels',
+            operation: 'update',
+            documentId: labelId,
+            performedBy: req.user?.email,
+            details: { updatedFields: labelData },
+        });
+        return updatedLabel;
     }
 
-    async deleteLabel(labelId) {
-        return await LabelRepository.deleteLabel(labelId);
+    async deleteLabel(labelId, req) {
+        const deletedLabel = await LabelRepository.deleteLabel(labelId);
+        if (!deletedLabel) {
+            throw new Error('Label not found');
+        }
+        await timestampService.logOperation({
+            collectionName: 'labels',
+            operation: 'delete',
+            documentId: labelId,
+            performedBy: req.user?.email,
+        });
+        return deletedLabel;
     }
 }
 
