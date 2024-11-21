@@ -1,4 +1,5 @@
 const pageService = require('../services/pageService');
+const handleImageUpload = require('../services/imageHandler'); // Import the image upload handler
 
 class PageController {
   // Create a new page
@@ -86,7 +87,6 @@ class PageController {
     }
   }
 
-  // Edit specific content within a page
   async editContentInPage(req, res) {
     try {
       const pageId = req.params.pageId;
@@ -114,38 +114,88 @@ class PageController {
     }
   };
 
+
+
   async addDetail(req, res) {
+      const { pageId } = req.params;
+      const { name, order, image, ...rest } = req.body; 
+    
+      if (!name || order === undefined) {
+          return res.status(400).send({ error: 'Name and order are required.' });
+      }
+  
+      // Process the image if provided
+      let imagePath = null;
+      try {
+          if (image) {
+              imagePath = await handleImageUpload({ image }, req);
+          }
+      } catch (error) {
+          return res.status(400).send({ error: 'Invalid or failed image upload.' });
+      }
+  
+      const dynamicChildren = Object.entries(rest).map(([key, value]) => ({
+          Key: key,
+          Value: value,
+          Type: 0,
+          ContentDetailsID: 0,
+          LanguageCode: "en",
+          Children: [],
+          Order: 0,
+      }));
+      
+      const newDetail = {
+          Key: "Name",
+          Value: name,
+          Type: 0,
+          ContentDetailsID: 0,
+          LanguageCode: "en",
+          Children: dynamicChildren,
+          Order: parseInt(order),
+          ImagePath: imagePath, 
+      };
+  
+      try {
+          const updatedPage = await pageService.addDetail(pageId, newDetail);
+          res.status(201).send({ message: 'Detail added successfully.', page: updatedPage });
+      } catch (error) {
+          res.status(500).send({ error: error.message });
+      }
+  }
+  
+
+
+  async deleteDetailByValue(req, res){
     const { pageId } = req.params;
-    const { name, mobile, contact, address, longitude, latitude, order } = req.body;
-
-    if (!name || !mobile || !contact || !address || !longitude || !latitude || !order) {
-      return res.status(400).send({ error: 'All fields are required.' });
-    }
-
-    const newDetail = {
-      Key: "Name",
-      Value: name,
-      Type: 0,
-      ContentDetailsID: 0,
-      LanguageCode: "en",
-      Children: [
-        { Key: "Mobile", Value: mobile, Type: 0, ContentDetailsID: 0, LanguageCode: "en", Children: [], Order: 0 },
-        { Key: "Contact", Value: contact, Type: 0, ContentDetailsID: 0, LanguageCode: "en", Children: [], Order: 0 },
-        { Key: "Address", Value: address, Type: 0, ContentDetailsID: 0, LanguageCode: "en", Children: [], Order: 0 },
-        { Key: "Longitude", Value: longitude, Type: 0, ContentDetailsID: 0, LanguageCode: "en", Children: [], Order: 0 },
-        { Key: "Latitude", Value: latitude, Type: 0, ContentDetailsID: 0, LanguageCode: "en", Children: [], Order: 0 },
-        { Key: "Order", Value: order.toString(), Type: 0, ContentDetailsID: 0, LanguageCode: "en", Children: [], Order: 0 }
-      ],
-      Order: parseInt(order)
-    };
+    const { value } = req.body;
 
     try {
-      const updatedPage = await pageService.addDetail(pageId, newDetail);
-      res.status(201).send({ message: 'Detail added successfully.', page: updatedPage });
+        const updatedDetails = await pageService.deleteDetailByValue(pageId, value);
+        if (!updatedDetails) {
+            return res.status(404).json({ error: 'Detail not found' });
+        }
+        res.status(200).json({ message: 'Detail deleted successfully', details: updatedDetails });
     } catch (error) {
-      res.status(500).send({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while deleting the detail' });
     }
+};
+
+async updateDetail(req, res){
+  const { pageId } = req.params;
+  const { value, updates } = req.body;
+
+  try {
+      const page = await pageService.updateDetail(pageId, value, updates);
+      if (!page) {
+          return res.status(404).json({ error: 'Detail not found' });
+      }
+      res.status(200).json({ message: 'Detail updated successfully', detail: page });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to update detail' });
   }
+};
 
 }
 

@@ -5,6 +5,7 @@ const pageRoutes = require('./routes/pageRoutes');
 const userRoutes = require('./routes/userRoutes');
 const newsRoutes = require('./routes/newsRoutes');
 const labelRoutes = require('./routes/labelRoutes');
+const timestampRoutes = require('./routes/timestampRoute')
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use(authenticateToken);
 app.use('/api/news', newsRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/labels', labelRoutes);
+app.use("/timestamps", timestampRoutes);
 
 module.exports = app;

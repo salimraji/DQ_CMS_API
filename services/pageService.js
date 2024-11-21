@@ -2,20 +2,17 @@ const pageRepository = require('../repositories/pageRepository');
 const fs = require("fs");
 const path = require("path");
 const handleImageUpload = require('./imageHandler');
-const timestampService = require('./timestampService');
+const timestampService = require('../services/timestampService'); // Import the timestamp service
 
 class PageService {
 
   // Create a page
   async createPage(data, req) {
     const page = await pageRepository.createPage(data);
-    await timestampService.logOperation({
-      collectionName: 'pages',
-      operation: 'create',
-      documentId: page._id,
-      performedBy: req.user?.email, 
-      details: { title: page.title }, 
-    });
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
     return page;
   }
 
@@ -34,37 +31,29 @@ class PageService {
     if (!page) {
       throw new Error('Page not found');
     }
-    await timestampService.logOperation({
-      collectionName: 'pages',
-      operation: 'update',
-      documentId: id,
-      performedBy: req.user?.email,
-      details: { updatedFields: Object.keys(data) },
-    });
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
     return page;
   }
 
-  // Delete a page
   async deletePage(id, req) {
     const page = await pageRepository.deletePage(id);
     if (!page) {
       throw new Error('Page not found');
     }
-    await timestampService.logOperation({
-      collectionName: 'pages',
-      operation: 'delete',
-      documentId: id,
-      performedBy: req.user?.email,
-    });
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
     return page;
   }
 
-  // Get all the pages
   async getAllPages() {
     return pageRepository.getAllPages();
   }
 
-  // Get a page by its type
   async getPageByType(pageType) {
     const page = await pageRepository.getPageByType(pageType);
     if (!page) {
@@ -73,23 +62,18 @@ class PageService {
     return page;
   }
 
-  // Delete a content in a page
   async deleteContentItem(pageId, contentId, req) {
     const updatedPage = await pageRepository.deleteContentItem(pageId, contentId);
     if (!updatedPage) {
       throw new Error('Page or content item not found');
     }
-    await timestampService.logOperation({
-      collectionName: 'pages',
-      operation: 'delete_content',
-      documentId: pageId,
-      performedBy: req.user?._id,
-      details: { contentId },
-    });
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
     return updatedPage;
   }
 
-  // Add content to a page
   async addContentToPage(pageId, contentData, req) {
     if (contentData.image) {
       contentData.image = await handleImageUpload(contentData, req);
@@ -98,17 +82,13 @@ class PageService {
     if (!page) {
       throw new Error("Page not found");
     }
-    await timestampService.logOperation({
-      collectionName: 'pages',
-      operation: 'add_content',
-      documentId: pageId,
-      performedBy: req.user?._id,
-      details: { contentData },
-    });
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
     return page;
   }
 
-  // Edit content in a page
   async editContentInPage(pageId, contentId, contentData, req) {
     const existingContent = await pageRepository.getContentById(pageId, contentId);
     if (!existingContent) {
@@ -120,17 +100,13 @@ class PageService {
     if (!page) {
       throw new Error("Page or content not found");
     }
-    await timestampService.logOperation({
-      collectionName: 'pages',
-      operation: 'edit_content',
-      documentId: pageId,
-      performedBy: req.user?._id,
-      details: { contentId, updatedFields: contentData },
-    });
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
     return page;
   }
 
-  // Get paginated pages
   async getPaginatedPages(page, limit, search) {
     const skip = (page - 1) * limit;
     const [pages, total] = await Promise.all([
@@ -153,7 +129,58 @@ class PageService {
     }
 
     page.Details.push(detail);
-    return await pageRepository.save(page);
+    await pageRepository.save(page);
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
+    return page;
+  }
+
+  async deleteDetailByValue(pageId, value) {
+    const page = await pageRepository.findPageById(pageId);
+    if (!page) {
+      return null;
+    }
+
+    const detailIndex = page.Details.findIndex(detail => detail.Value === value);
+    if (detailIndex === -1) {
+      return null;
+    }
+
+    page.Details.splice(detailIndex, 1);
+    await pageRepository.save(page);
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
+    return page.Details;
+  }
+
+  async updateDetail(pageId, value, updates) {
+    const page = await pageRepository.findPageById(pageId);
+    if (!page) {
+      return null;
+    }
+
+    const detail = page.Details.find((detail) => detail.Value === value);
+    if (!detail) {
+      return null;
+    }
+
+    detail.Children = detail.Children.map((child) => {
+      if (updates[child.Key] !== undefined) {
+        return { ...child, Value: updates[child.Key] };
+      }
+      return child;
+    });
+
+    await pageRepository.save(page);
+
+    // Update timestamp for Pages collection
+    await timestampService.updateTimestamp("Pages");
+
+    return page;
   }
 }
 

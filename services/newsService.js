@@ -1,6 +1,6 @@
 const newsRepository = require('../repositories/newsRepository');
 const handleImageUpload = require('./imageHandler');
-const timestampService = require('./timestampService');
+const timestampService = require('../services/timestampService'); // Import the timestamp service
 
 class NewsService {
     // Create news
@@ -9,13 +9,10 @@ class NewsService {
             data.image = await handleImageUpload(data, req);
         }
         const news = await newsRepository.createNews(data);
-        await timestampService.logOperation({
-            collectionName: 'news',
-            operation: 'create',
-            documentId: news._id,
-            performedBy: req.user?.email, 
-            details: { title: news.title, content: news.content }, 
-        });
+
+        // Update timestamp for News collection
+        await timestampService.updateTimestamp("News");
+
         return news;
     }
 
@@ -39,13 +36,10 @@ class NewsService {
         if (!updatedNews) {
             throw new Error('News not found');
         }
-        await timestampService.logOperation({
-            collectionName: 'news',
-            operation: 'update',
-            documentId: id,
-            performedBy: req.user?.email,
-            details: { updatedFields: Object.keys(data) },
-        });
+
+        // Update timestamp for News collection
+        await timestampService.updateTimestamp("News");
+
         return updatedNews;
     }
 
@@ -55,12 +49,10 @@ class NewsService {
         if (!deletedNews) {
             throw new Error('News not found');
         }
-        await timestampService.logOperation({
-            collectionName: 'news',
-            operation: 'delete',
-            documentId: id,
-            performedBy: req.user?.email,
-        });
+
+        // Update timestamp for News collection
+        await timestampService.updateTimestamp("News");
+
         return deletedNews;
     }
 }

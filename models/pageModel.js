@@ -1,14 +1,5 @@
 const mongoose = require('mongoose');
 
-const DetailChildSchema = new mongoose.Schema({
-    Key: { type: String, required: true },
-    Value: { type: String, required: true },
-    Type: { type: Number },
-    ContentDetailsID: { type: Number },
-    LanguageCode: { type: String },
-    Children: { type: [this], default: [] },
-    Order: { type: Number }
-});
 
 const DetailSchema = new mongoose.Schema({
     Key: { type: String, required: true },
@@ -16,7 +7,7 @@ const DetailSchema = new mongoose.Schema({
     Type: { type: Number },
     ContentDetailsID: { type: Number },
     LanguageCode: { type: String },
-    Children: { type: [DetailChildSchema], default: [] },
+    Children: { type: [Object], default: [] },
     Order: { type: Number }
 });
 

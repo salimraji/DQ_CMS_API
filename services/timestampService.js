@@ -1,14 +1,14 @@
-const Timestamp = require('../models/timestampModel');
+const timestampRepository = require('../repositories/timestamprepository.js')
 
-class TimestampService {
-    async logOperation({ collectionName, operation, documentId, performedBy, details = {} }) {
-        try {
-            const timestamp = new Timestamp({ collectionName, operation, documentId, performedBy, details });
-            await timestamp.save();
-        } catch (error) {
-            console.error('Error logging timestamp:', error);
-        }
-    }
-}
+const updateTimestamp = async (collectionName) => {
+  await timestampRepository.updateTimestamp(collectionName);
+};
 
-module.exports = new TimestampService();
+const getAllTimestamps = async () => {
+  return await timestampRepository.getAllTimestamps();
+};
+
+module.exports = {
+  updateTimestamp,
+  getAllTimestamps,
+};

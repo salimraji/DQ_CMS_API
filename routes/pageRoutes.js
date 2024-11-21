@@ -14,5 +14,7 @@ router.post('/:pageId/content', pageController.addContentToPage);
 router.put('/:pageId/content/:contentId', pageController.editContentInPage);
 router.get('/', pageController.getPages);
 router.post('/:pageId/add-detail', pageController.addDetail);
+router.delete('/:pageId/details', pageController.deleteDetailByValue);
+router.patch('/:pageId/details', pageController.updateDetail);
 
 module.exports = router;

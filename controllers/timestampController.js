@@ -1,21 +1,22 @@
-const Timestamp = require('../models/timestampModel');
+const timestampService = require("../services/timestampService");
 
-class TimestampController {
-    async getLogs(req, res) {
-        try {
-            const { collectionName, operation, documentId, userId } = req.query;
-            const filters = {};
-            if (collectionName) filters.collectionName = collectionName;
-            if (operation) filters.operation = operation;
-            if (documentId) filters.documentId = documentId;
-            if (userId) filters.performedBy = userId;
+const updateTimestamp = async (req, res) => {
+  const { collectionName } = req.params;
 
-            const logs = await Timestamp.find(filters).sort({ timestamp: -1 });
-            res.status(200).json(logs);
-        } catch (error) {
-            res.status(500).json({ message: 'Error fetching logs', details: error.message });
-        }
-    }
-}
+  if (!["Labels", "Users", "Pages", "News"].includes(collectionName)) {
+    return res.status(400).json({ error: "Invalid collection name" });
+  }
 
-module.exports = new TimestampController();
+  await timestampService.updateTimestamp(collectionName);
+  res.json({ message: `Timestamp updated for ${collectionName}` });
+};
+
+const getAllTimestamps = async (req, res) => {
+  const timestamps = await timestampService.getAllTimestamps();
+  res.json(timestamps);
+};
+
+module.exports = {
+  updateTimestamp,
+  getAllTimestamps,
+};

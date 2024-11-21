@@ -1,16 +1,13 @@
 const LabelRepository = require('../repositories/labelRepository');
-const timestampService = require('./timestampService');
+const timestampService = require('../services/timestampService');
 
 class LabelService {
     async createLabel(labelData, req) {
         const label = await LabelRepository.createLabel(labelData);
-        await timestampService.logOperation({
-            collectionName: 'labels',
-            operation: 'create',
-            documentId: label._id,
-            performedBy: req.user?.email, // Optional: user performing the action
-            details: { label: labelData },
-        });
+
+        // Update timestamp for Labels collection
+        await timestampService.updateTimestamp("Labels");
+
         return label;
     }
 
@@ -39,13 +36,10 @@ class LabelService {
         if (!updatedLabel) {
             throw new Error('Label not found');
         }
-        await timestampService.logOperation({
-            collectionName: 'labels',
-            operation: 'update',
-            documentId: labelId,
-            performedBy: req.user?.email,
-            details: { updatedFields: labelData },
-        });
+
+        // Update timestamp for Labels collection
+        await timestampService.updateTimestamp("Labels");
+
         return updatedLabel;
     }
 
@@ -54,12 +48,10 @@ class LabelService {
         if (!deletedLabel) {
             throw new Error('Label not found');
         }
-        await timestampService.logOperation({
-            collectionName: 'labels',
-            operation: 'delete',
-            documentId: labelId,
-            performedBy: req.user?.email,
-        });
+
+        // Update timestamp for Labels collection
+        await timestampService.updateTimestamp("Labels");
+
         return deletedLabel;
     }
 }

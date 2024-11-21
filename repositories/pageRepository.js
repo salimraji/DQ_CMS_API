@@ -66,10 +66,15 @@ class PageRepository {
 
 async getPageCount (search) {
     const searchQuery = search
-        ? { "Details.Value": { $regex: search, $options: "i" } } // Case-insensitive search
+        ? { "Details.Value": { $regex: search, $options: "i" } } 
         : {};
 
     return await Page.countDocuments(searchQuery);
+};
+
+
+async findPageById(pageId){
+  return Page.findById(pageId);
 };
 }
 

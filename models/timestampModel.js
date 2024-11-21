@@ -1,12 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const timestampSchema = new mongoose.Schema({
-    collectionName: { type: String, required: true }, 
-    operation: { type: String, required: true }, 
-    documentId: { type: mongoose.Schema.Types.ObjectId, required: true }, 
-    timestamp: { type: Date, default: Date.now },
-    performedBy: { type: String },
-    details: { type: Object }, 
+  _id: { type: String, required: true }, 
+  lastUpdated: { type: Date, required: true },
 });
 
-module.exports = mongoose.model('Timestamp', timestampSchema);
+const Timestamp = mongoose.model("Timestamp", timestampSchema);
+
+module.exports = Timestamp;
