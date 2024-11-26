@@ -49,7 +49,6 @@ class LabelService {
             throw new Error('Label not found');
         }
 
-        // Update timestamp for Labels collection
         await timestampService.updateTimestamp("Labels");
 
         return deletedLabel;

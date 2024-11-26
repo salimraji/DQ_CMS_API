@@ -1,7 +1,7 @@
 const pageRepository = require('../repositories/pageRepository');
 const fs = require("fs");
 const path = require("path");
-const handleImageUpload = require('./imageHandler');
+const { handleImageUpload } = require('./imageHandler');
 const timestampService = require('../services/timestampService'); // Import the timestamp service
 
 class PageService {
@@ -32,7 +32,6 @@ class PageService {
       throw new Error('Page not found');
     }
 
-    // Update timestamp for Pages collection
     await timestampService.updateTimestamp("Pages");
 
     return page;
@@ -44,7 +43,6 @@ class PageService {
       throw new Error('Page not found');
     }
 
-    // Update timestamp for Pages collection
     await timestampService.updateTimestamp("Pages");
 
     return page;
@@ -68,7 +66,6 @@ class PageService {
       throw new Error('Page or content item not found');
     }
 
-    // Update timestamp for Pages collection
     await timestampService.updateTimestamp("Pages");
 
     return updatedPage;
@@ -83,7 +80,6 @@ class PageService {
       throw new Error("Page not found");
     }
 
-    // Update timestamp for Pages collection
     await timestampService.updateTimestamp("Pages");
 
     return page;
@@ -101,7 +97,6 @@ class PageService {
       throw new Error("Page or content not found");
     }
 
-    // Update timestamp for Pages collection
     await timestampService.updateTimestamp("Pages");
 
     return page;
@@ -122,20 +117,33 @@ class PageService {
     };
   }
 
-  async addDetail(pageId, detail) {
+  async addDetail(pageId, detail, req) {
     const page = await pageRepository.getPageById(pageId);
     if (!page) {
-      throw new Error('Page not found');
+        throw new Error('Page not found');
+    }
+
+    const pageImageChild = detail.Children.find(
+        (child) => child.Key === 'PageImage' && child.Value.startsWith('data:image/')
+    );
+
+    if (pageImageChild) {
+        const type = 'pages'
+        const detailValue = detail.Value || `${Date.now()}`; 
+        const tag = page.Tag; 
+        const imageUrl = await handleImageUpload(pageImageChild.Value, tag, detailValue, req, type);
+        pageImageChild.Value = imageUrl;
     }
 
     page.Details.push(detail);
+
     await pageRepository.save(page);
 
-    // Update timestamp for Pages collection
-    await timestampService.updateTimestamp("Pages");
+    await timestampService.updateTimestamp('Pages');
 
     return page;
-  }
+}
+
 
   async deleteDetailByValue(pageId, value) {
     const page = await pageRepository.findPageById(pageId);
@@ -151,37 +159,53 @@ class PageService {
     page.Details.splice(detailIndex, 1);
     await pageRepository.save(page);
 
-    // Update timestamp for Pages collection
     await timestampService.updateTimestamp("Pages");
 
     return page.Details;
   }
 
-  async updateDetail(pageId, value, updates) {
+  //Detail Updates
+
+  async updateDetail(pageId, value, updates, req) {
     const page = await pageRepository.findPageById(pageId);
     if (!page) {
-      return null;
+        throw new Error('Page not found');
     }
 
     const detail = page.Details.find((detail) => detail.Value === value);
     if (!detail) {
-      return null;
+        throw new Error('Detail not found');
+    }
+
+    const pageImageChild = detail.Children.find(
+        (child) => child.Key === 'PageImage' && updates[child.Key]?.startsWith('data:image/')
+    );
+
+    if (pageImageChild) {
+        const type = 'pages';
+        const detailValue = detail.Value || `${Date.now()}`;
+        const tag = page.Tag;
+        const imageUrl = await handleImageUpload(updates[pageImageChild.Key], tag, detailValue, req, type);
+        pageImageChild.Value = imageUrl;
     }
 
     detail.Children = detail.Children.map((child) => {
-      if (updates[child.Key] !== undefined) {
-        return { ...child, Value: updates[child.Key] };
-      }
-      return child;
+        if (updates[child.Key] !== undefined /*&& child.Key !== 'PageImage'*/) {
+            console.log('child key is ', child.Key)
+            return { ...child, Value: updates[child.Key] };
+        }
+        return child;
     });
 
     await pageRepository.save(page);
 
-    // Update timestamp for Pages collection
-    await timestampService.updateTimestamp("Pages");
+    await timestampService.updateTimestamp('Pages');
 
     return page;
-  }
+}
+
+
+
 }
 
 module.exports = new PageService();

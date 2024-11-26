@@ -1,8 +1,7 @@
 const pageService = require('../services/pageService');
-const handleImageUpload = require('../services/imageHandler'); // Import the image upload handler
+const handleImageUpload = require('../services/imageHandler'); 
 
 class PageController {
-  // Create a new page
   async createPage(req, res) {
     try {
       const page = await pageService.createPage(req.body, req);
@@ -12,7 +11,6 @@ class PageController {
     }
   }
 
-  // Get a page by ID
   async getPageById(req, res) {
     try {
       const page = await pageService.getPageById(req.params.id);
@@ -22,7 +20,6 @@ class PageController {
     }
   }
 
-  // Update a page by ID
   async updatePage(req, res) {
     try {
       const page = await pageService.updatePage(req.params.id, req.body, req);
@@ -32,7 +29,6 @@ class PageController {
     }
   }
 
-  // Delete a page by ID
   async deletePage(req, res) {
     try {
       const page = await pageService.deletePage(req.params.id, req);
@@ -42,7 +38,7 @@ class PageController {
     }
   }
 
-  // Get all pages
+
   async getAllPages(req, res) {
     try {
       const pages = await pageService.getAllPages();
@@ -51,8 +47,6 @@ class PageController {
       res.status(400).json({ error: error.message });
     }
   }
-
-  //Get page by type
 
   async getPageByType(req, res) {
     try {
@@ -63,8 +57,6 @@ class PageController {
       res.status(404).json({ error: error.message });
     }
   }
-
-  // Delete a content
 
   async deleteContentItem(req, res) {
     try {
@@ -116,77 +108,67 @@ class PageController {
 
 
 
-  async addDetail(req, res) {
-      const { pageId } = req.params;
-      const { name, order, image, ...rest } = req.body; 
-    
-      if (!name || order === undefined) {
-          return res.status(400).send({ error: 'Name and order are required.' });
-      }
-  
-      // Process the image if provided
-      let imagePath = null;
-      try {
-          if (image) {
-              imagePath = await handleImageUpload({ image }, req);
-          }
-      } catch (error) {
-          return res.status(400).send({ error: 'Invalid or failed image upload.' });
-      }
-  
-      const dynamicChildren = Object.entries(rest).map(([key, value]) => ({
-          Key: key,
-          Value: value,
-          Type: 0,
-          ContentDetailsID: 0,
-          LanguageCode: "en",
-          Children: [],
-          Order: 0,
-      }));
-      
-      const newDetail = {
-          Key: "Name",
-          Value: name,
-          Type: 0,
-          ContentDetailsID: 0,
-          LanguageCode: "en",
-          Children: dynamicChildren,
-          Order: parseInt(order),
-          ImagePath: imagePath, 
-      };
-  
-      try {
-          const updatedPage = await pageService.addDetail(pageId, newDetail);
-          res.status(201).send({ message: 'Detail added successfully.', page: updatedPage });
-      } catch (error) {
-          res.status(500).send({ error: error.message });
-      }
-  }
-  
-
-
-  async deleteDetailByValue(req, res){
+async addDetail(req, res) {
     const { pageId } = req.params;
-    const { value } = req.body;
+    const { name, order, image, ...rest } = req.body; 
+  
+    if (!name || order === undefined) {
+        return res.status(400).send({ error: 'Name and order are required.' });
+    }
+
+
+    const dynamicChildren = Object.entries(rest).map(([key, value]) => ({
+        Key: key,
+        Value: value,
+        Type: 0,
+        ContentDetailsID: 0,
+        LanguageCode: "en",
+        Children: [],
+        Order: 0,
+    }));
+    
+    const newDetail = {
+        Key: "Name",
+        Value: name,
+        Type: 0,
+        ContentDetailsID: 0,
+        LanguageCode: "en",
+        Children: dynamicChildren,
+    };
 
     try {
-        const updatedDetails = await pageService.deleteDetailByValue(pageId, value);
-        if (!updatedDetails) {
-            return res.status(404).json({ error: 'Detail not found' });
-        }
-        res.status(200).json({ message: 'Detail deleted successfully', details: updatedDetails });
+        const updatedPage = await pageService.addDetail(pageId, newDetail, req);
+        res.status(201).send({ message: 'Detail added successfully.', page: updatedPage });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'An error occurred while deleting the detail' });
+        res.status(500).send({ error: error.message });
     }
+}
+  
+
+
+async deleteDetailByValue(req, res){
+  const { pageId } = req.params;
+  const { value } = req.body;
+
+  try {
+      const updatedDetails = await pageService.deleteDetailByValue(pageId, value);
+      if (!updatedDetails) {
+          return res.status(404).json({ error: 'Detail not found' });
+      }
+      res.status(200).json({ message: 'Detail deleted successfully', details: updatedDetails });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred while deleting the detail' });
+  }
 };
 
 async updateDetail(req, res){
   const { pageId } = req.params;
   const { value, updates } = req.body;
 
+
   try {
-      const page = await pageService.updateDetail(pageId, value, updates);
+      const page = await pageService.updateDetail(pageId, value, updates, req);
       if (!page) {
           return res.status(404).json({ error: 'Detail not found' });
       }

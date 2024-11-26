@@ -39,16 +39,24 @@ class UserService {
 
     // Update a user
     async updateUser(userId, updateData) {
-        const updatedUser = await userRepository.updateUserById(userId, updateData);
+        let dataWithHashedPassword = { ...updateData }; 
+    
+        if (updateData.password) {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(updateData.password, saltRounds);
+            dataWithHashedPassword.password = hashedPassword;
+        }
+    
+        const updatedUser = await userRepository.updateUserById(userId, dataWithHashedPassword);
         if (!updatedUser) {
             throw new Error("User not found");
         }
-
-        // Update timestamp for Users collection
+    
         await timestampService.updateTimestamp("Users");
-
+    
         return updatedUser;
     }
+    
 
     // Delete a user
     async deleteUser(userId) {
@@ -56,8 +64,6 @@ class UserService {
         if (!deletedUser) {
             throw new Error("User not found");
         }
-
-        // Update timestamp for Users collection
         await timestampService.updateTimestamp("Users");
 
         return deletedUser;
@@ -74,7 +80,6 @@ class UserService {
             throw new Error("User not found");
         }
 
-        // Update timestamp for Users collection
         await timestampService.updateTimestamp("Users");
 
         return updatedUser;
