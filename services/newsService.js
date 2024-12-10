@@ -1,6 +1,6 @@
 const newsRepository = require('../repositories/newsRepository');
 const handleImageUpload = require('./imageHandler');
-const timestampService = require('../services/timestampService'); // Import the timestamp service
+const timestampService = require('./timestampService'); // Import the timestamp service
 
 class NewsService {
     // Create news

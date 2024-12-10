@@ -1,5 +1,5 @@
 const LabelRepository = require('../repositories/labelRepository');
-const timestampService = require('../services/timestampService');
+const timestampService = require('./timestampService');
 
 class LabelService {
     async createLabel(labelData, req) {

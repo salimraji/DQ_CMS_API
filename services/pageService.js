@@ -2,7 +2,7 @@ const pageRepository = require('../repositories/pageRepository');
 const fs = require("fs");
 const path = require("path");
 const { handleImageUpload } = require('./imageHandler');
-const timestampService = require('../services/timestampService'); // Import the timestamp service
+const timestampService = require('./timestampService'); // Import the timestamp service
 
 class PageService {
 
@@ -164,7 +164,7 @@ class PageService {
     return page.Details;
   }
 
-  //Detail Updates
+
 
   async updateDetail(pageId, value, updates, req) {
     const page = await pageRepository.findPageById(pageId);
@@ -185,24 +185,36 @@ class PageService {
         const type = 'pages';
         const detailValue = detail.Value || `${Date.now()}`;
         const tag = page.Tag;
+
         const imageUrl = await handleImageUpload(updates[pageImageChild.Key], tag, detailValue, req, type);
+        console.log('Image uploaded, URL:', imageUrl);
         pageImageChild.Value = imageUrl;
+        updates[pageImageChild.Key] = imageUrl;
+
+        console.log('Updated PageImage child Value:', pageImageChild.Value);
     }
 
     detail.Children = detail.Children.map((child) => {
-        if (updates[child.Key] !== undefined /*&& child.Key !== 'PageImage'*/) {
-            console.log('child key is ', child.Key)
+        if (updates[child.Key] !== undefined) {
             return { ...child, Value: updates[child.Key] };
         }
         return child;
     });
 
-    await pageRepository.save(page);
+    console.log('Updated detail.Children:', detail.Children);
 
-    await timestampService.updateTimestamp('Pages');
+    page.markModified('Details');
+    try {
+        await page.save();
+        console.log('Page successfully saved to the database');
+    } catch (error) {
+        console.error('Error saving page:', error);
+    }
 
     return page;
 }
+
+
 
 
 

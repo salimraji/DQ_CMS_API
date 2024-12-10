@@ -1,6 +1,6 @@
 const User = require('../models/userModel');
 
-class UserService {
+class UserRepository {
     createUser(userData) {
         const user = new User(userData);
         return user.save();
@@ -23,4 +23,4 @@ class UserService {
     }
 }
 
-module.exports = new UserService();
+module.exports = new UserRepository();

@@ -5,7 +5,9 @@ const pageRoutes = require('./routes/pageRoutes');
 const userRoutes = require('./routes/userRoutes');
 const newsRoutes = require('./routes/newsRoutes');
 const labelRoutes = require('./routes/labelRoutes');
-const timestampRoutes = require('./routes/timestampRoute')
+const timestampRoutes = require('./routes/timestampRoutes.js')
+const mappUserRoutes = require('./routes/mappUserRoutes.js')
+const deviceRoutes = require('./routes/deviceRoutes')
 const path = require('path');
 const app = express();
 
@@ -17,7 +19,10 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use('/api/users', userRoutes);
+
+app.use('/api', userRoutes);
+app.use('/api/mappUser', mappUserRoutes);
+app.use('/api/device', deviceRoutes)
 // app.use(authenticateToken);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/news', newsRoutes);

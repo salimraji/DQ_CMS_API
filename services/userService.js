@@ -1,6 +1,6 @@
 const userRepository = require('../repositories/userRepository');
 const bcrypt = require('bcrypt');
-const timestampService = require('../services/timestampService'); // Import the timestamp service
+const timestampService = require('./timestampService'); // Import the timestamp service
 
 class UserService {
     // Create a user
