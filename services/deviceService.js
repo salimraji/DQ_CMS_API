@@ -2,12 +2,12 @@ const deviceRepository = require('../repositories/deviceRepository');
 
 class DeviceService {
     async registerDevice(deviceData) {
-        const { id } = deviceData;
+        const { uuid } = deviceData;
         
-        let existingDevice = await deviceRepository.findDeviceByDeviceId(id);
+        let existingDevice = await deviceRepository.findDeviceByDeviceId(uuid);
 
         if (existingDevice) {
-            return await deviceRepository.updateDeviceByDeviceId(id, deviceData);
+            return await deviceRepository.updateDeviceByDeviceId(uuid, deviceData);
         }
 
         return await deviceRepository.registerDevice(deviceData);

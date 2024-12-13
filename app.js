@@ -8,10 +8,12 @@ const labelRoutes = require('./routes/labelRoutes');
 const timestampRoutes = require('./routes/timestampRoutes.js')
 const mappUserRoutes = require('./routes/mappUserRoutes.js')
 const deviceRoutes = require('./routes/deviceRoutes')
+const authRoutes = require('./routes/authRoutes.js')
 const path = require('path');
 const app = express();
 
 app.use(express.json());
+
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -20,10 +22,13 @@ app.use(cors({
 }));
 
 
-app.use('/api', userRoutes);
+
+app.use('/api/auth', authRoutes)
+
+// app.use(authenticateToken);
+app.use('/api/users', userRoutes);
 app.use('/api/mappUser', mappUserRoutes);
 app.use('/api/device', deviceRoutes)
-// app.use(authenticateToken);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/news', newsRoutes);
 app.use('/api/pages', pageRoutes);

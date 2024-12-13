@@ -9,13 +9,13 @@ class DeviceRepository {
         return Device.find();
     }
 
-    async findDeviceByDeviceId(id) { 
-        return Device.findOne({ id });
+    async findDeviceByDeviceId(uuid) { 
+        return Device.findOne({ uuid });
     }
 
-    async updateDeviceByDeviceId(id, updatedData) {
+    async updateDeviceByDeviceId(uuid, updatedData) {
         return Device.findOneAndUpdate(
-            { id },
+            { uuid },
             updatedData,
             { new: true, upsert: false }
         );
