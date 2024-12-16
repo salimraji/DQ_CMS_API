@@ -25,7 +25,7 @@ app.use(cors({
 
 app.use('/api/auth', authRoutes)
 
-// app.use(authenticateToken);
+app.use(authenticateToken);
 app.use('/api/users', userRoutes);
 app.use('/api/mappUser', mappUserRoutes);
 app.use('/api/device', deviceRoutes)
