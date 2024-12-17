@@ -177,6 +177,10 @@ class PageService {
         throw new Error('Detail not found');
     }
 
+    if (updates.Value !== undefined && updates.Value !== detail.Value) {
+        detail.Value = updates.Value;
+    }
+
     const pageImageChild = detail.Children.find(
         (child) => child.Key === 'PageImage' && updates[child.Key]?.startsWith('data:image/')
     );
@@ -185,13 +189,7 @@ class PageService {
         const type = 'pages';
         const detailValue = detail.Value || `${Date.now()}`;
         const tag = page.Tag;
-
         const imageUrl = await handleImageUpload(updates[pageImageChild.Key], tag, detailValue, req, type);
-        console.log('Image uploaded, URL:', imageUrl);
-        pageImageChild.Value = imageUrl;
-        updates[pageImageChild.Key] = imageUrl;
-
-        console.log('Updated PageImage child Value:', pageImageChild.Value);
     }
 
     detail.Children = detail.Children.map((child) => {
@@ -201,7 +199,7 @@ class PageService {
         return child;
     });
 
-    console.log('Updated detail.Children:', detail.Children);
+    console.log('Updated detail.Children:', detail);
 
     page.markModified('Details');
     try {
@@ -213,6 +211,7 @@ class PageService {
 
     return page;
 }
+
 
 
 
