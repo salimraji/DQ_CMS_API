@@ -1,24 +1,31 @@
 const newsRepository = require('../repositories/newsRepository');
-const handleImageUpload = require('./imageHandler');
-const timestampService = require('./timestampService'); // Import the timestamp service
+const { handleImageUpload } = require('./imageHandler.js');
+const timestampService = require('./timestampService');
 
 class NewsService {
     // Create news
     async createNews(data, req) {
         if (data.image) {
-            data.image = await handleImageUpload(data, req);
+            data.image = await handleImageUpload(data.image, "images" , data.title , req, "news");
         }
         const news = await newsRepository.createNews(data);
 
-        // Update timestamp for News collection
         await timestampService.updateTimestamp("News");
 
         return news;
     }
 
     // Get all the news
-    async getNews() {
-        return newsRepository.getNews();
+    async getNews({page = 1, limit = 10, search = ""}) {
+        const skip = (page - 1) * limit;
+        const query = search
+        ? { $or: [{ title: { $regex: search, $options: 'i'}}]}
+        : {}
+
+        const news = await newsRepository.findNews(query, limit, skip)
+        const total = await newsRepository.countNews(query)
+        
+        return { news, total }
     }
 
     // Get news by id
@@ -32,12 +39,14 @@ class NewsService {
 
     // Update a certain news
     async updateNews(id, data, req) {
+        if (data.image) {
+            data.image = await handleImageUpload(data.image, "images" , data.title , req, "news");
+        }
         const updatedNews = await newsRepository.updateNews(id, data);
         if (!updatedNews) {
             throw new Error('News not found');
         }
 
-        // Update timestamp for News collection
         await timestampService.updateTimestamp("News");
 
         return updatedNews;

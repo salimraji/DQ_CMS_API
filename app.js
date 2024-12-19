@@ -24,12 +24,11 @@ app.use(cors({
 
 
 app.use('/api/auth', authRoutes)
-
-app.use(authenticateToken);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use(authenticateToken);
 app.use('/api/users', userRoutes);
 app.use('/api/mappUser', mappUserRoutes);
 app.use('/api/device', deviceRoutes)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/news', newsRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/labels', labelRoutes);

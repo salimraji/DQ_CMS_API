@@ -12,7 +12,8 @@ class NewsController {
 
     async getNews(req, res) {
         try {
-            const newsList = await newsService.getNews();
+            const {page, limit, search} = req.query
+            const newsList = await newsService.getNews({page: Number(page), limit: Number(limit), search});
             res.status(200).json(newsList);
         } catch (error) {
             res.status(500).json({ error: error.message });

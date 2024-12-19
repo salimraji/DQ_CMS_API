@@ -9,6 +9,14 @@ class NewsRepository {
         return News.find();
     }
 
+    async findNews(query = {}, limit = 10, skip = 0){
+        return News.find(query).limit(limit).skip(skip)
+    }
+
+    async countNews(query = {}){
+        return News.countDocuments(query)
+    }
+
     async getNewsById(id) {
         return News.findById(id);
     }
