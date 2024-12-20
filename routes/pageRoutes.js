@@ -3,6 +3,7 @@ const pageController = require('../controllers/pageController');
 
 const router = express.Router();
 
+router.get('/aboutUs', pageController.getAboutUs)
 router.post('/', pageController.createPage);
 router.get('/:id', pageController.getPageById);
 router.put('/:id', pageController.updatePage);

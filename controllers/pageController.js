@@ -1,7 +1,23 @@
 const pageService = require('../services/pageService');
 const handleImageUpload = require('../services/imageHandler'); 
+const Page = require('../models/pageModel')
 
 class PageController {
+
+  async getAboutUs(req,res){
+      try {
+        const data = await Page.findOne({ 'Tag' : 'ABOUTUS' }).exec();
+        if (data && data.Details && data.Details.length > 0 && data.Details[0].Children && data.Details[0].Children.length > 0) {
+          res.json(data.Details[0].Children[0].Value );
+        } else {
+          res.status(404).send('Description not found');
+        }
+      } catch (error) {
+        res.status(500).send('Server error');
+      }
+      
+  }
+  
   async createPage(req, res) {
     try {
       const page = await pageService.createPage(req.body, req);
@@ -178,6 +194,8 @@ async updateDetail(req, res){
       res.status(500).json({ error: 'Failed to update detail' });
   }
 };
+
+
 
 }
 

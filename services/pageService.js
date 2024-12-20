@@ -199,8 +199,6 @@ class PageService {
         return child;
     });
 
-    console.log('Updated detail.Children:', detail);
-
     page.markModified('Details');
     try {
         await page.save();
