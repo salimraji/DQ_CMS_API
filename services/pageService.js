@@ -172,7 +172,7 @@ class PageService {
         throw new Error('Page not found');
     }
 
-    const detail = page.Details.find((detail) => detail.Value === value);
+    const detail = page.Details.find(detail => detail.Value === value);
     if (!detail) {
         throw new Error('Detail not found');
     }
@@ -181,28 +181,29 @@ class PageService {
         detail.Value = updates.Value;
     }
 
-    const pageImageChild = detail.Children.find(
-        (child) => child.Key === 'PageImage' && updates[child.Key]?.startsWith('data:image/')
-    );
-
-    if (pageImageChild) {
-        const type = 'pages';
-        const detailValue = detail.Value || `${Date.now()}`;
-        const tag = page.Tag;
-        const imageUrl = await handleImageUpload(updates[pageImageChild.Key], tag, detailValue, req, type);
-    }
-
-    detail.Children = detail.Children.map((child) => {
+    // Iterate over children to potentially update each one
+    for (const child of detail.Children) {
         if (updates[child.Key] !== undefined) {
-            return { ...child, Value: updates[child.Key] };
+            if (child.Key === 'PageImage' && updates[child.Key].startsWith('data:image/')) {
+                // Only process if it's the image and the update is a base64 image string
+                const type = 'pages';
+                const detailValue = detail.Value || `${Date.now()}`;
+                const tag = page.Tag;
+  
+                // Upload the image and get the URL
+                const imageUrl = await handleImageUpload(updates[child.Key], tag, detailValue, req, type);
+                child.Value = imageUrl;  // Ensure URL is set in the object referenced in the original array
+                console.log('Image URL:', imageUrl);
+            } else {
+                child.Value = updates[child.Key];
+            }
         }
-        return child;
-    });
+    }
 
     page.markModified('Details');
     try {
         await page.save();
-        console.log('Page successfully saved to the database');
+        console.log('Page successfully saved to the database with updated URL');
     } catch (error) {
         console.error('Error saving page:', error);
     }

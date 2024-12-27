@@ -20,4 +20,7 @@ const MainSchema = new mongoose.Schema({
     Order: { type: Number }
 });
 
+MainSchema.index({ Tag: 1 });
+MainSchema.index({ Title: 1 });
+
 module.exports = mongoose.model('Page', MainSchema);
