@@ -1,4 +1,3 @@
-// Initialize Firebase Admin SDK
 const admin = require('firebase-admin');
 const serviceAccount = require('../firebase-adminsdk.json');
 
@@ -34,6 +33,71 @@ module.exports = new NotificationController();
 
 
 
+
+
+
+
+
+
+// Ssocket IO integrated
+// const admin = require('firebase-admin');
+// const serviceAccount = require('../firebase-adminsdk.json');
+// const express = require('express')
+// const http = require('http');
+// const { Server } = require("socket.io");
+// const app = express();
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//     cors: {
+//         origin: '*',
+//         methods: ["GET", "POST"]
+//     }
+// });
+
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
+
+
+// class NotificationController {
+//   async sendNotification(req, res) {
+//       const message = {
+//           notification: {
+//               title: req.body.title,
+//               body: req.body.message
+//           },
+//           token: req.body.token
+//       };
+
+//       admin.messaging().send(message)
+//           .then((response) => {
+//               // Emit only non-sensitive parts of the notification
+//               io.emit('notification', {
+//                   title: req.body.title,
+//                   message: req.body.message
+//               });
+//               res.status(200).send('Notification sent successfully: ' + response);
+//           })
+//           .catch((error) => {
+//               res.status(500).send('Failed to send notification: ' + error);
+//           });
+//   }
+// }
+  
+  
+  
+// module.exports = new NotificationController();
+
+
+
+
+
+
+
+
+
+// check all the devices inside the database
 // const admin = require('firebase-admin');
 // const serviceAccount = require('../firebase-adminsdk.json');
 

@@ -1,4 +1,5 @@
-const SentNotification = require('../models/sentNotificationModel')
+const SentNotification = require('../models/sentNotificationModel');
+
 
 class SentNotificationRepository {
     async getSentNotification (userId) {
@@ -17,6 +18,11 @@ class SentNotificationRepository {
             { $set: { isSeen: true } } 
         );
     }
+
+    async deleteNotification(_id) {
+        return SentNotification.deleteOne({ _id: _id });
+    }
+    
 }
 
 module.exports = new SentNotificationRepository();

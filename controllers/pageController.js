@@ -144,7 +144,7 @@ async addDetail(req, res) {
     }));
     
     const newDetail = {
-        Key: "Name",
+        Key: "PageTitle",
         Value: name,
         Type: 0,
         ContentDetailsID: 0,

@@ -2,7 +2,7 @@ const pageRepository = require('../repositories/pageRepository');
 const fs = require("fs");
 const path = require("path");
 const { handleImageUpload } = require('./imageHandler');
-const timestampService = require('./timestampService'); // Import the timestamp service
+const timestampService = require('./timestampService'); 
 
 class PageService {
 
@@ -185,15 +185,12 @@ class PageService {
     for (const child of detail.Children) {
         if (updates[child.Key] !== undefined) {
             if (child.Key === 'PageImage' && updates[child.Key].startsWith('data:image/')) {
-                // Only process if it's the image and the update is a base64 image string
                 const type = 'pages';
                 const detailValue = detail.Value || `${Date.now()}`;
                 const tag = page.Tag;
-  
-                // Upload the image and get the URL
+
                 const imageUrl = await handleImageUpload(updates[child.Key], tag, detailValue, req, type);
-                child.Value = imageUrl;  // Ensure URL is set in the object referenced in the original array
-                console.log('Image URL:', imageUrl);
+                child.Value = imageUrl;  
             } else {
                 child.Value = updates[child.Key];
             }

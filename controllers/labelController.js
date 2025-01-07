@@ -13,7 +13,9 @@ class LabelController {
 
     async getLabels(req, res) {
         try {
-            const { page, limit, search } = req.query;
+            const page = parseInt(req.query.page); 
+            const limit = parseInt(req.query.limit); 
+            const search = req.query.search || '';  
             const data = await LabelService.getLabels({ page: Number(page), limit: Number(limit), search });
             res.json(data);
         } catch (error) {

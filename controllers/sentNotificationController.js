@@ -21,6 +21,16 @@ class sentNotificationController {
             res.status(500).json({ message: error.message });
         }
     }
+
+    async deleteNotification(req, res){
+        try{
+            const { _id } = req.body
+            const result = await sentNotificationService.deleteNotification(_id);
+            res.json(result);
+        }catch(error){
+            res.status(500).json({ message: error.message})
+        }
+    }
 }
 
 module.exports = new sentNotificationController()

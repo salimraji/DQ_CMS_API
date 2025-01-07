@@ -31,7 +31,7 @@ async function handleImageUpload(imageBase64, tag, detailValue, req, type) {
 
     fs.writeFileSync(filePath, imageData, { encoding: 'base64' });
 
-    return `${req.protocol}://${req.get('host')}/uploads/${type}/${tag}/${fileName}`;
+    return `/uploads/${type}/${tag}/${fileName}`;
 }
 
 module.exports = { handleImageUpload };
