@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.io Test</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io('http://192.168.12.113:3000');  // Replace with your server URL
+            
+            socket.on('salim', (data) => {
+                console.log('Received salim event:', data);
+                document.getElementById('result').innerText = `Received: ${JSON.stringify(data)}`;
+            });
+
+
+        });
+    </script>
+</head>
+<body>
+    <h1>Socket.io Test</h1>
+    <p id="result">Waiting for salim event...</p>
+</body>
+</html>

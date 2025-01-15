@@ -1,5 +1,6 @@
 const Timestamp = require("../models/timestampModel");
 
+
 const updateTimestamp = async (collectionName) => {
   const currentTimestamp = new Date();
   await Timestamp.updateOne(
@@ -7,6 +8,8 @@ const updateTimestamp = async (collectionName) => {
     { $set: { lastUpdated: currentTimestamp } },
     { upsert: true }
   );
+
+
 };
 
 const getAllTimestamps = async () => {

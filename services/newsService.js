@@ -39,19 +39,18 @@ class NewsService {
 
     // Update a certain news
     async updateNews(id, data, req) {
-        if (data.image) {
-            data.image = await handleImageUpload(data.image, "images" , data.title , req, "news");
+        if (data.image && typeof data.image === 'string' && data.image.startsWith("data:image")) {
+            data.image = await handleImageUpload(data.image, "images", data.title, req, "news");
         }
         const updatedNews = await newsRepository.updateNews(id, data);
         if (!updatedNews) {
             throw new Error('News not found');
         }
-
+    
         await timestampService.updateTimestamp("News");
-
+    
         return updatedNews;
     }
-
     // Delete a certain news
     async deleteNews(id, req) {
         const deletedNews = await newsRepository.deleteNews(id);

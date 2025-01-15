@@ -1,5 +1,7 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('../firebase-adminsdk.json');
+const sentNotificationRepository = require('../repositories/sentNotificationRepository.js')
+
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -15,6 +17,15 @@ class NotificationController {
         },
         token: req.body.token
       };
+
+      const notificationData = {
+        userId: req.body.userId,
+        message: req.body.message,
+        dateReceived: new Date().toISOString(),  
+        isSeen: false 
+      }
+
+      sentNotificationRepository.saveSentNotification(notificationData);
   
       admin.messaging().send(message)
         .then((response) => {

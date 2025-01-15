@@ -14,15 +14,13 @@ const deviceRoutes = require('./routes/deviceRoutes');
 const authRoutes = require('./routes/authRoutes.js');
 const notificationRoutes = require('./routes/notificationRoutes');
 const sentNotificationRoutes = require('./routes/sentNotificationRoute.js');
+const { initializeSocket,  getIO } = require('./socket');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ["GET", "POST"]
-    }
-});
+initializeSocket(server);
+
+
 
 // Middleware and routes setup
 app.use(express.json({ limit: '50mb' }));
@@ -52,6 +50,7 @@ const sentNotificationRepository = require('./repositories/sentNotificationRepos
 
 app.post('/api/socket-notification', async (req, res) => {
     const { key, type, message, userId } = req.body;
+    const io = getIO();
 
     if (!userId || !key || !type || !message) {
         return res.status(400).send('Missing key, type, or message in request');
@@ -77,38 +76,7 @@ app.post('/api/socket-notification', async (req, res) => {
 });
 
 
-io.on('connection', (socket) => {
-    const userID = socket.handshake.query.userID;
-    const deviceID = socket.handshake.query.deviceID;
-    console.log('A user connected with ID: ', userID);
-    console.log('device ID: ', deviceID);
-    ConnectedDevice.findOne({ userId: userID, deviceId: deviceID })
-        .then(existingDevice => {
-            if (existingDevice) {
-                console.log('Device already registered');
-                return; 
-            }
 
-            const newDevice = new ConnectedDevice({
-                userId: userID,
-                deviceId: deviceID
-            });
-
-            newDevice.save()
-                .then(() => console.log('Device info saved'))
-                .catch(err => console.error('Error saving device info:', err));
-        })
-        .catch(err => console.error('Error checking for existing device:', err));
-
-
-    socket.on('disconnect', () => {
-        console.log(`User ${userID} disconnected`);
-
-        ConnectedDevice.deleteOne({ userId: userID, deviceId: deviceID })
-            .then(() => console.log(`Device info for user ${userID} deleted`))
-            .catch(err => console.error(`Error deleting device info for user ${userID}:`, err));
-    });
-});
 
 
 module.exports = { app, server };

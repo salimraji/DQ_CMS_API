@@ -205,6 +205,8 @@ class PageService {
         console.error('Error saving page:', error);
     }
 
+    await timestampService.updateTimestamp("Pages");
+
     return page;
 }
 
